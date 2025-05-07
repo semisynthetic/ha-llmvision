@@ -754,8 +754,8 @@ class LocalAI(Provider):
                 memory_type="OpenAI")
             system_prompt = call.memory.system_prompt
             if memory_content:
-                payload["messages"].insert(
-                    0, {"role": "user", "content": memory_content})
+                payload["messages"][0]["content"].append(
+                    memory_content})
             if system_prompt:
                 payload["messages"].insert(
                     0, {"role": "system", "content": system_prompt})
