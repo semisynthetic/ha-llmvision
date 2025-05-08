@@ -739,6 +739,8 @@ class LocalAI(Provider):
     def _prepare_vision_data(self, call) -> dict:
         payload = {"model": call.model, "messages": [{"role": "user", "content": [
         ]}], "max_tokens": call.max_tokens, "temperature": call.temperature}
+        payload["messages"][0]["content"].append(
+            {"type": "text", "text": call.message})
         for image, filename in zip(call.base64_images, call.filenames):
             tag = ("Image " + str(call.base64_images.index(image) + 1)
                    ) if filename == "" else filename
@@ -746,16 +748,16 @@ class LocalAI(Provider):
                 {"type": "text", "text": tag + ":"})
             payload["messages"][0]["content"].append(
                 {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image}"}})
-        payload["messages"][0]["content"].append(
-            {"type": "text", "text": call.message})
 
         if call.use_memory:
             memory_content = call.memory._get_memory_images(
-                memory_type="OpenAI")
+                memory_type="OpenAI")[::-1]
             system_prompt = call.memory.system_prompt
             if memory_content:
-                payload["messages"][0]["content"].append(
-                    memory_content)
+                for memory_content_listitem in memory_content:
+                    payload["messages"][0]["content"].insert(
+                        0,memory_content_listitem
+                    )
             if system_prompt:
                 payload["messages"].insert(
                     0, {"role": "system", "content": system_prompt})
