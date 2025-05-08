@@ -739,7 +739,7 @@ class LocalAI(Provider):
     def _prepare_vision_data(self, call) -> dict:
         payload = {"model": call.model, "messages": [{"role": "user", "content": [
         ]}], "max_tokens": call.max_tokens, "temperature": call.temperature}
-        """ Put the user message before the images, which creates separation from referenced memory images """
+        """Put the user message before the images, which creates separation from referenced memory images"""
         payload["messages"][0]["content"].append(
             {"type": "text", "text": call.message})
         for image, filename in zip(call.base64_images, call.filenames):
@@ -752,11 +752,11 @@ class LocalAI(Provider):
 
         if call.use_memory:
             memory_content = call.memory._get_memory_images(
-                """ Reverse the order of memory items since we are going to insert them individually """
+                # Reverse the order of memory items since we are going to insert them individually
                 memory_type="OpenAI")[::-1]
             system_prompt = call.memory.system_prompt
             if memory_content:
-                """ Instead of using a new role:user, content message, append the memory text and images to the existing messages. This is less confusing to the model and better representative of a single request that is not an ongoing chat. """
+                # Instead of using a new role:user, content message, append the memory text and images to the existing messages. This is less confusing to the model and better representative of a single request that is not an ongoing chat.
                 for memory_content_listitem in memory_content:
                     payload["messages"][0]["content"].insert(
                         0,memory_content_listitem
